@@ -11,7 +11,7 @@ The base URL for the API is: `https://app.inn-connect.com/api/innconnectapi`
 
 ### Security Credentials
 
-Each request must include your security credentials within the SOAP header. To become a partner and receive your `user` and `password` credentials, please contact `info@inngeniuspms.com`.
+Each request must include your security credentials within the SOAP header. To become a partner and receive your `user` and `password` credentials, please contact `info@inngeniuspms.com`. The credentials are the same for all properties and are issued per partner, meaning you can use the same `user` and `password` for all properties you manage.
 You will be asked for your IP addresses so it can be whitelisted.
 
 The `propertyId` is the unique identifier for your property in the Innconnect system. You must be authorized to manage this property.
@@ -21,6 +21,7 @@ To find your `propertyId`:
 2.  Navigate to your property's page.
 3.  Click on the "Property Details" button.
 4.  The ID is displayed next to the "Property Information" tab label. For example, if you see "Property Information (ID: 192)", your `propertyId` is `192`.
+
 
 ---
 
