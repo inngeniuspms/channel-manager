@@ -1,7 +1,5 @@
 # Innconnect Channel Manager API Documentation
 
-Last Updated: 2025-10-04
-
 ### Introduction
 
 
