@@ -515,6 +515,43 @@ To ensure a stable and reliable integration, please follow these recommendations
 **Data Synchronization:**
 *   **Daily Full Data Push:** To prevent discrepancies, it is critical to send a full year of availability, rates, and restrictions (like MinLOS) at least once per day. This ensures that the channel manager's data is a perfect mirror of your system's data.
 *   **Use `EchoToken` for Idempotency:** Where available, use the `EchoToken` attribute in your requests. This will help to associate requests with responses and can prevent duplicate processing in case of retries.
+*   **Merge Consecutive Same-Value Days into a Single Range:** For availability (`BookingLimit`), rate (`AmountBeforeTax`), and MinLOS (`LengthOfStay`), if consecutive days carry the same value, send them as one date range (`Start`/`End`) in a single message block, instead of splitting into separate per-day XML elements or payloads.
+*   **Avoid High-Frequency Repeated Unchanged Updates:** Repeatedly sending the same unchanged availability, rates, or restrictions at high frequency is considered excessive traffic and may affect platform stability. Send updates on change (or as part of scheduled full refreshes) and implement deduplication in your integration.
+*   **Enforcement for Persistent Excessive Traffic:** If excessive repeated unchanged traffic continues, Innconnect may apply staged enforcement, including warning notices, temporary throttling, and if unresolved, temporary or permanent API disconnection.
+
+**Clarification Example (Per-Day Split vs. Range Merge):**
+
+Bad pattern (fragmented per-day updates with same value):
+
+```xml
+<OTA_HotelAvailNotifRQ xmlns="http://www.opentravel.org/OTA/2003/05">
+  <AvailStatusMessages>
+    <AvailStatusMessage BookingLimit="5">
+      <StatusApplicationControl Start="2026-06-01" End="2026-06-01" InvTypeCode="184" RatePlanCode="185"/>
+    </AvailStatusMessage>
+    <AvailStatusMessage BookingLimit="5">
+      <StatusApplicationControl Start="2026-06-02" End="2026-06-02" InvTypeCode="184" RatePlanCode="185"/>
+    </AvailStatusMessage>
+    <AvailStatusMessage BookingLimit="5">
+      <StatusApplicationControl Start="2026-06-03" End="2026-06-03" InvTypeCode="184" RatePlanCode="185"/>
+    </AvailStatusMessage>
+  </AvailStatusMessages>
+</OTA_HotelAvailNotifRQ>
+```
+
+Good pattern (single merged range for same value):
+
+```xml
+<OTA_HotelAvailNotifRQ xmlns="http://www.opentravel.org/OTA/2003/05">
+  <AvailStatusMessages>
+    <AvailStatusMessage BookingLimit="5">
+      <StatusApplicationControl Start="2026-06-01" End="2026-06-03" InvTypeCode="184" RatePlanCode="185"/>
+    </AvailStatusMessage>
+  </AvailStatusMessages>
+</OTA_HotelAvailNotifRQ>
+```
+
+Apply the same principle to `OTA_HotelRateAmountNotifRQ` and MinLOS updates: when the value is unchanged across consecutive dates, merge into one range.
 
 **Reservation Management:**
 *   **Frequent Polling:** Poll for new, modified, and cancelled reservations every 5-10 minutes. This ensures your property management system receives updates in a timely manner, reducing the risk of overbookings or missed cancellations.
